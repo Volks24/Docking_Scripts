@@ -1,36 +1,43 @@
-import sys
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import argparse
 
-### Make BPF ###
+__author__ = "Juan Manuel Prieto"
 
-if __name__ == "__main__":
+"""
+    Make BPF files
+"""
 
-    parser = argparse.ArgumentParser(description='Ingrese posiciones ej(-p 1,4,5)')
-    #parser.add_argument('pdb', action='store')
-    parser.add_argument('-p', '--pos', action='store',type=str)
+
+def process_input_file(input_file):
+    with open(input_file, 'r') as f:
+        return f.readlines()
+
+def main():
+    parser = argparse.ArgumentParser(description='Process interaction sites.')
+    parser.add_argument('input_file', help='Input PDB file')
+    parser.add_argument('-p', '--positions', required=True, help='Positions to extract, e.g., 4,5,7')
+
     args = parser.parse_args()
 
-    #In = open(args.pdb ,'r').readlines()
-    In = open('interaction_sites.pdb' ,'r').readlines()
-    Out = open('ligand_bias.bpf' , 'w')
-
     try:
-        Entrada_Sistema = (args.pos)
-        Corte = Entrada_Sistema.split(',')
-        Interes = []
-        for j in (Corte):
-            Interes.append(int(j))
-    except:
-        print('Ingrese posiciones ej(-p 1,4,5)')
-        exit()
+        interest = [int(pos) for pos in args.positions.split(',')]
+    except ValueError:
+        print("Invalid input for positions. Please enter comma-separated integers.")
+        exit(1)
 
+    v_set = -2.00
+    r_value = 1.20
 
-    Vset = -2.00
-    r = 1.20
+    output_file = 'ligand_bias.bpf'
 
-    Out.write('x    y    z     Vset    r     type\n')
+    with open(output_file, 'w') as out:
+        out.write('x    y    z     Vset    r     type\n')
 
-    for lines in In:
-        if int(lines[23:27]) in Interes: 
-            Out.write('{}     {}     {}     {}\n'.format(lines[30:55].strip(),Vset,r,(lines[17:20]).lower()))
-    
+        for line in process_input_file(args.input_file):
+            if int(line[23:27]) in interest:
+                out.write('{}     {}     {}     {}\n'.format(line[30:55].strip(), v_set, r_value, line[17:20].lower()))
+
+if __name__ == '__main__':
+    main()
