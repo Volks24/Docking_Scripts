@@ -140,7 +140,6 @@ if __name__ == '__main__':
                 input_file = open('{}'.format(file_name), 'r').readlines()
                 ranks(input_file)
                 DF_Energia = Histograma(input_file)
-                print(DF_Energia)
                 for k in range(0, DF_Energia.shape[0]):
                     stats_final.loc[len(stats_final.index)] = [lig, DF_Energia.iloc[k, 0], DF_Energia.iloc[k, 3], DF_Energia.iloc[k, 4],DF_Energia.iloc[k, 5], 'Normal']
                 Grafico_Clusters_Pob(DF_Energia, caso)
